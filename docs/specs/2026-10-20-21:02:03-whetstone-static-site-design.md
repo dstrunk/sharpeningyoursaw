@@ -64,7 +64,7 @@ Content is the existing copy, arranged as in the mockup:
 | Background | `#eceff1` |
 | Ink | `#1c2328` |
 | Body text | `#33404a` |
-| Muted | `#56636d` / footer `#66727c` |
+| Muted (also the footer) | `#56636d`. The mockup used `#66727c` for the footer; that is 4.27:1 on the background, below WCAG AA |
 | Accent (steel) | `#2e5470` |
 | Fine grit | `#a9b8c3` |
 | Rules | `#cdd4d9` |

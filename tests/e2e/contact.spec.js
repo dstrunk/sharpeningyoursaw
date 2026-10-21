@@ -11,7 +11,7 @@ test("has the contact title and marks Contact as the current page", async ({ pag
   await expect(page).toHaveTitle("Contact · Sharpening Your Saw");
   const navigation = page.getByRole("banner").getByRole("navigation");
   await expect(navigation.getByRole("link", { name: "Contact" })).toHaveAttribute("aria-current", "page");
-  await expect(navigation.getByRole("link", { name: "Home" })).not.toHaveAttribute("aria-current", /.*/);
+  await expect(navigation.getByRole("link", { name: "Home" })).not.toHaveAttribute("aria-current");
 });
 
 test("shows the heading and prompt", async ({ page }) => {
@@ -41,7 +41,7 @@ test("names each field after its Google Form question", async ({ page }) => {
   await expect(name).toHaveAttribute("required", "");
   await expect(email).toHaveAttribute("required", "");
   await expect(email).toHaveAttribute("type", "email");
-  await expect(subject).not.toHaveAttribute("required", /.*/);
+  await expect(subject).not.toHaveAttribute("required");
   await expect(message).toHaveAttribute("required", "");
   await expect(message).toHaveJSProperty("tagName", "TEXTAREA");
   await expect(subscribe).toHaveAttribute("type", "checkbox");

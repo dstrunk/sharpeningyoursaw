@@ -2,6 +2,7 @@
 layout: default
 ---
 <p class="eyebrow">{{ page.eyebrow }}</p>
+{% comment %}markdownify wraps the headline in <p>; Jekyll 3 has no inline-only Markdown filter.{% endcomment %}
 <h1 class="display-title">{{ page.headline | markdownify | remove: "<p>" | remove: "</p>" | strip }}</h1>
 <div class="whetstone" aria-hidden="true"></div>
 <div class="lead">{{ content }}</div>

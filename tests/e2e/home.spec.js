@@ -21,7 +21,7 @@ test("header links home and marks Home as the current page", async ({ page }) =>
   await expect(homeLink).toHaveAttribute("href", "/");
   await expect(homeLink).toHaveAttribute("aria-current", "page");
   await expect(contactLink).toHaveAttribute("href", "/contact/");
-  await expect(contactLink).not.toHaveAttribute("aria-current", /.*/);
+  await expect(contactLink).not.toHaveAttribute("aria-current");
 });
 
 test("shows the existing copy", async ({ page }) => {
