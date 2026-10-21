@@ -52,7 +52,7 @@ Content is the existing copy, arranged as in the mockup:
 
 - Header: italic wordmark "Sharpening Your Saw" on the left, and Home / Contact nav on the right. The current page's link is underlined.
 - Footer: "© {year} Sharpening Your Saw". The year comes from `site.time`, so it updates on the next build after New Year.
-- Responsive breakpoint at 640px, matching the mockup's phone layout: 20px gutters, a 44px headline, services in two columns, and the contact form in one column.
+- Responsive breakpoints: at 820px and below, services go to two columns and the contact form moves below its intro. At 640px and below (the mockup's phone layout) gutters drop to 20px, the headline to 44px, and Name/Email stack. The 820px step was added after review found the desktop layout cramped between 641 and 820px.
 - `<title>` per page ("Sharpening Your Saw" / "Contact · Sharpening Your Saw") and a meta description using the lead sentence.
 
 ## Visual tokens (from the mockup)

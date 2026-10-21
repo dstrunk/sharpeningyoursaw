@@ -87,6 +87,7 @@ body {
   margin: 0;
   max-width: 13ch;
   text-wrap: balance;
+  overflow-wrap: break-word;
 }
 .display-title em { color: var(--color-accent); }
 
@@ -120,6 +121,7 @@ body {
   font-family: var(--font-display);
   font-size: 21px;
   line-height: 1.25;
+  overflow-wrap: break-word;
 }
 
 .call-to-action {
@@ -198,14 +200,18 @@ body {
   color: var(--color-accent);
 }
 
+@media (max-width: 820px) {
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+  .services li { padding-bottom: 14px; }
+  .contact { grid-template-columns: 1fr; gap: 28px; }
+}
+
 @media (max-width: 640px) {
   :root { --gutter: 20px; }
   .site-header nav { gap: 18px; }
   .site-main { padding-block: 48px 56px; }
   .display-title { font-size: 44px; }
   .display-title--small { font-size: 38px; }
-  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
-  .services li { padding-bottom: 14px; font-size: 19px; }
-  .contact { grid-template-columns: 1fr; gap: 28px; }
+  .services li { font-size: 19px; }
   .field-row { grid-template-columns: 1fr; }
 }
