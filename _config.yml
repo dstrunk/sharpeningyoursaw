@@ -1,0 +1,18 @@
+title: Sharpening Your Saw
+description: Sharpening Your Saw provides expertise in leadership development, team building, executive coaching and strategic development.
+baseurl: ""
+
+exclude:
+  - docs
+  - tests
+  - apps-script
+  - node_modules
+  - package.json
+  - package-lock.json
+  - playwright.config.js
+  - test-results
+  - playwright-report
+  - docker-compose.yml
+  - Gemfile
+  - Gemfile.lock
+  - README.md
