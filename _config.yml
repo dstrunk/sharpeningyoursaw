@@ -18,12 +18,12 @@ exclude:
   - Gemfile.lock
   - README.md
 
-# Placeholder values until the real Google Form exists (plan Task 8).
-# action is the Form's formResponse URL; entries are its question IDs.
+# Google Form that stores contact messages (https://forms.gle/CCV4etjSHXKTjAcc9).
+# action is its formResponse URL; entries are its question IDs (see README).
 google_form:
-  action: https://docs.google.com/forms/d/e/REPLACE_ME/formResponse
+  action: https://docs.google.com/forms/d/e/1FAIpQLSfFfHkOpLCSeamglzb5zev0rdzrfzfsUp3sLDZcVQSTnDkm_g/formResponse
   entries:
-    name: entry.1000000001
-    email: entry.1000000002
-    subject: entry.1000000003
-    message: entry.1000000004
+    name: entry.1795760626
+    email: entry.650575490
+    subject: entry.1974149135
+    message: entry.1522122871

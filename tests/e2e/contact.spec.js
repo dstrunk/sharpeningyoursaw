@@ -74,3 +74,11 @@ test("tabs through the fields in order without stopping on the honeypot", async 
   }
   expect(focusOrder).toEqual(["contact-email", "contact-subject", "contact-message", "Send message"]);
 });
+
+test("is configured with a real Google Form", () => {
+  expect(googleForm.action).toMatch(/^https:\/\/docs\.google\.com\/forms\/d\/e\/[\w-]+\/formResponse$/);
+  expect(googleForm.action).not.toContain("REPLACE_ME");
+  for (const entryName of Object.values(googleForm.entries)) {
+    expect(entryName).not.toMatch(/^entry\.100000000\d$/);
+  }
+});
