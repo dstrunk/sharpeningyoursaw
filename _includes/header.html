@@ -1,0 +1,9 @@
+<header class="site-header">
+  <div class="inner">
+    <a class="wordmark" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <nav aria-label="Main">
+      <a class="nav-link" href="{{ '/' | relative_url }}"{% if page.url == "/" %} aria-current="page"{% endif %}>Home</a>
+      <a class="nav-link" href="{{ '/contact/' | relative_url }}"{% if page.url == "/contact/" %} aria-current="page"{% endif %}>Contact</a>
+    </nav>
+  </div>
+</header>
