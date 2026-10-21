@@ -142,6 +142,8 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 
 **Goal:** submitting runs validation, the honeypot, the `no-cors` POST and the three states, all without touching Google.
 
+> Recorded 2026-10-20: `page.route("**/formResponse")` does intercept the `mode: "no-cors"` fetch. The body test asserts `request.resourceType() === "fetch"` on the intercepted request, and it passes.
+
 1. **Red:** `tests/e2e/contact-form.spec.js` intercepts `**/formResponse` with `page.route` and records the request body. Before any assertion depends on it, confirm in this step that the route handler is actually hit for a `mode: "no-cors"` fetch, and record that result. Cases:
    - **Validation:** submitting empty sends no request, and the browser's validity state flags Name, Email and Message.
    - **Body:** with all fields filled, one POST with `application/x-www-form-urlencoded` contains exactly the four configured `entry.*` keys with the typed values.

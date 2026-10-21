@@ -42,6 +42,8 @@ test.describe("with JavaScript", () => {
     for (const label of ["Name", "Email", "Message"]) {
       expect(await page.getByLabel(label).evaluate((field) => field.validity.valid)).toBe(false);
     }
+    await expect(page.locator("form.contact-form")).toBeVisible();
+    await expect(sendButton(page)).toHaveText("Send message");
     expect(requests).toHaveLength(0);
   });
 
@@ -101,19 +103,29 @@ test.describe("with JavaScript", () => {
     await expect(page.getByLabel("Message")).toHaveValue(visitor.message);
     await expect(sendButton(page)).toHaveText("Send message");
     await expect(sendButton(page)).toBeEnabled();
+    await expect(sendButton(page)).toBeFocused();
   });
 
-  test("hides the earlier error once a retry succeeds", async ({ page }) => {
+  test("clears the earlier error while a retry is sending", async ({ page }) => {
     let shouldFail = true;
-    await interceptGoogleForm(page, (route) => (shouldFail ? route.abort("failed") : route.fulfill({ status: 200, body: "" })));
+    let releaseRetry;
+    const retryReleased = new Promise((resolve) => { releaseRetry = resolve; });
+    await interceptGoogleForm(page, async (route) => {
+      if (shouldFail) return route.abort("failed");
+      await retryReleased;
+      return route.fulfill({ status: 200, body: "" });
+    });
     await fillContactForm(page);
     await sendButton(page).click();
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("alert")).toHaveText(ERROR);
 
     shouldFail = false;
     await sendButton(page).click();
-    await expect(page.getByText(THANKS)).toBeVisible();
+    await expect(sendButton(page)).toHaveText("Sending…");
     await expect(page.getByText(ERROR)).toHaveCount(0);
+
+    releaseRetry();
+    await expect(page.getByText(THANKS)).toBeVisible();
   });
 
   test("pretends to succeed and sends nothing when the honeypot is filled", async ({ page }) => {
@@ -141,6 +153,8 @@ test.describe("without JavaScript", () => {
     await expect(page.getByText("Your response has been recorded.")).toBeVisible();
     expect(requests).toHaveLength(1);
     expect(requests[0].resourceType()).toBe("document");
-    expect(Object.keys(Object.fromEntries(new URLSearchParams(requests[0].postData())))).toEqual(Object.values(googleForm.entries));
+    expect(requests[0].url()).toBe(googleForm.action);
+    const postedKeys = Object.keys(Object.fromEntries(new URLSearchParams(requests[0].postData())));
+    expect(postedKeys.sort()).toEqual(Object.values(googleForm.entries).sort());
   });
 });
