@@ -1,6 +1,6 @@
 title: Sharpening Your Saw
 description: Sharpening Your Saw provides expertise in leadership development, team building, executive coaching and strategic development.
-baseurl: "/sharpeningyoursaw-site" # project-site path until the custom domain is set (plan Task 10)
+baseurl: ""
 theme: null
 
 exclude:

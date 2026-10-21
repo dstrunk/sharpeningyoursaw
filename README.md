@@ -1,8 +1,6 @@
 # Sharpening Your Saw
 
-Static site for Sharpening Your Saw, built with Jekyll. GitHub Pages builds and publishes it whenever `main` is pushed: https://dstrunk.github.io/sharpeningyoursaw-site/ until the custom domain is set.
-
-`_config.yml` sets `baseurl: "/sharpeningyoursaw-site"` for that `github.io` address. Once a custom domain is in place, set it back to `""`. Local serving always uses `--baseurl ''`, so local URLs and the tests stay at `/` either way.
+Static site for Sharpening Your Saw, built with Jekyll. GitHub Pages builds and publishes it at https://sharpeningyoursaw.com/ whenever `main` is pushed. `www.sharpeningyoursaw.com` redirects to the bare domain. The `CNAME` file holds the custom domain; don't delete it.
 
 ## Run locally
 
