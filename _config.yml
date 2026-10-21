@@ -1,6 +1,7 @@
 title: Sharpening Your Saw
 description: Sharpening Your Saw provides expertise in leadership development, team building, executive coaching and strategic development.
 baseurl: ""
+theme: null
 
 exclude:
   - docs
@@ -16,3 +17,14 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - README.md
+
+# Placeholder values until the real Google Form exists (plan Task 8).
+# action is the Form's formResponse URL; entries are its question IDs.
+google_form:
+  action: https://docs.google.com/forms/d/e/REPLACE_ME/formResponse
+  entries:
+    name: entry.1000000001
+    email: entry.1000000002
+    subject: entry.1000000003
+    message: entry.1000000004
+    subscribe: entry.1000000005
