@@ -2,7 +2,7 @@ const { describe, test, beforeEach } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("path");
 
-const { buildNotification, onFormSubmit } = require(path.join(__dirname, "..", "..", "apps-script", "notify.gs"));
+const { buildNotification, spamReason, onFormSubmit } = require(path.join(__dirname, "..", "..", "apps-script", "notify.gs"));
 
 const answers = [
   { title: "Name", response: "Ada Lovelace" },
@@ -37,6 +37,45 @@ test("body lists every answer in form order and marks blanks", () => {
   );
 });
 
+function replaceAnswer(title, response) {
+  return answers.map((answer) => (answer.title === title ? { ...answer, response } : answer));
+}
+
+test("body leaves out the honeypot question", () => {
+  const withHoneypot = [...answers, { title: "Leave this blank", response: "" }];
+  assert.doesNotMatch(buildNotification(withHoneypot).body, /Leave this blank/);
+});
+
+describe("spamReason", () => {
+  test("lets a normal message through", () => {
+    assert.equal(spamReason(answers), null);
+  });
+
+  test("lets a message with one link through", () => {
+    assert.equal(spamReason(replaceAnswer("Message", "Our site is https://example.com, talk soon.")), null);
+  });
+
+  test("flags a filled honeypot", () => {
+    assert.equal(spamReason([...answers, { title: "Leave this blank", response: "https://spam.example" }]), "honeypot question was filled");
+  });
+
+  test("ignores an empty honeypot", () => {
+    assert.equal(spamReason([...answers, { title: "Leave this blank", response: "" }]), null);
+  });
+
+  test("flags a missing name", () => {
+    assert.equal(spamReason(answers.filter((answer) => answer.title !== "Name")), "name is missing");
+  });
+
+  test("flags a missing message", () => {
+    assert.equal(spamReason(replaceAnswer("Message", "")), "message is missing");
+  });
+
+  test("flags a message with two or more links", () => {
+    assert.equal(spamReason(replaceAnswer("Message", "Buy at http://a.example and www.b.example")), "message has 2 links");
+  });
+});
+
 describe("onFormSubmit", () => {
   let sentEmails;
   beforeEach(() => {
@@ -63,6 +102,11 @@ describe("onFormSubmit", () => {
     assert.equal(subject, "Website contact: Coaching for my team");
     assert.match(body, /^Name:\nAda Lovelace/);
     assert.deepEqual(options, { replyTo: "ada@example.com" });
+  });
+
+  test("onFormSubmit sends nothing for spam", () => {
+    onFormSubmit(formSubmitEvent([...answers, { title: "Leave this blank", response: "spam" }]));
+    assert.equal(sentEmails.length, 0);
   });
 
   test("onFormSubmit fails loudly when NOTIFY_EMAIL is not set", () => {

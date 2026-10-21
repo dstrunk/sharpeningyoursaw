@@ -41,8 +41,11 @@ The form posts to a Google Form's `formResponse` URL, using each question's `ent
 - **Failures are silent.** Google sends no CORS headers, so the site's `no-cors` fetch can't see whether a response was saved. A wrong ID drops messages without any error.
 - **After any change** to the Form's questions or to `google_form` in `_config.yml`, send a real test message and check that a row appears in the Sheet. Editing or recreating a question can change its ID.
 - **Getting the IDs:** in the Form, choose More → Pre-fill form, fill every field, then Get link. Each `entry.<number>` in the link is a question ID. For the action URL, take the responder link and replace `viewform` with `formResponse`.
-- **Honeypot:** the hidden "Leave this field blank" input has no `name`, so it is never submitted. When it's filled, `contact.js` shows success and sends nothing.
-- **Constraint:** keep the field set and the Form's questions in step. The notification script finds answers by the exact question titles "Email" and "Subject".
+- **Spam: honeypot.** The page has a hidden, off-screen input that belongs to its own optional Form question, "Leave this blank" (`google_form.entries.honeypot`). It stops bots in two ways:
+  - Bots that run the page's JavaScript and fill the field get a fake success from `contact.js`, and nothing is sent.
+  - Bots that post straight to `formResponse` usually fill every field, so their responses arrive with the honeypot answered. The notification script skips those.
+- **Spam: email filter.** `spamReason()` in `apps-script/notify.gs` also skips the email when the name or message is missing, or when the message has 2 or more links (`LINK_LIMIT`). Filtered responses still land in the Sheet, so check it now and then for real messages that were caught. The script logs each skip to the Apps Script dashboard's logs.
+- **Constraint:** keep the field set and the Form's questions in step. The notification script finds answers by the exact question titles "Name", "Email", "Subject", "Message" and "Leave this blank". The honeypot question must stay optional, because people always leave it empty and Google enforces required questions.
 
 ## Email notifications
 

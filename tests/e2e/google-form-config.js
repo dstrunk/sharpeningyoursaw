@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const CONFIG_PATH = path.join(__dirname, "..", "..", "_config.yml");
-const FIELDS = ["name", "email", "subject", "message"];
+const FIELDS = ["name", "email", "subject", "message", "honeypot"];
 
 function readGoogleFormBlock(config) {
   const start = config.search(/^google_form:/m);

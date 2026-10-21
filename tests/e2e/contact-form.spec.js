@@ -47,7 +47,7 @@ test.describe("with JavaScript", () => {
     expect(requests).toHaveLength(0);
   });
 
-  test("posts the four answers to the Google Form with fetch", async ({ page }) => {
+  test("posts the answers and an empty honeypot to the Google Form with fetch", async ({ page }) => {
     const requests = await interceptGoogleForm(page);
     await fillContactForm(page);
     await sendButton(page).click();
@@ -64,6 +64,7 @@ test.describe("with JavaScript", () => {
       [googleForm.entries.email]: visitor.email,
       [googleForm.entries.subject]: visitor.subject,
       [googleForm.entries.message]: visitor.message,
+      [googleForm.entries.honeypot]: "",
     });
   });
 

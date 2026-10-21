@@ -48,11 +48,11 @@ test("names each field after its Google Form question", async ({ page }) => {
   await expect(message).toHaveJSProperty("tagName", "TEXTAREA");
 });
 
-test("hides the honeypot from people and never submits it", async ({ page }) => {
+test("hides the honeypot from people and sends it to its own Google Form question", async ({ page }) => {
   const honeypot = page.locator("#contact-leave-blank");
   await expect(honeypot).toHaveAttribute("tabindex", "-1");
   await expect(honeypot).toHaveAttribute("autocomplete", "off");
-  await expect(honeypot).not.toHaveAttribute("name");
+  await expect(honeypot).toHaveAttribute("name", googleForm.entries.honeypot);
   await expect(page.locator(".honeypot")).toHaveAttribute("aria-hidden", "true");
 
   const box = await honeypot.boundingBox();
