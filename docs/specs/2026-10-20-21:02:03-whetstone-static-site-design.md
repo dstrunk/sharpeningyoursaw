@@ -118,6 +118,8 @@ The site is single-theme, as the mockup is. It has no dark mode.
 **Results so far (2026-10-20):**
 - The Form's public page, fetched with `curl` without Google cookies, returned 200. Its `FB_PUBLIC_LOAD_DATA_` script lists four questions: Name `entry.1795760626`, Email `entry.650575490`, Subject `entry.1974149135`, Message `entry.1522122871`. Reading IDs this way relies on an undocumented page structure. The pre-filled link is the documented route.
 - Spike step 1: `curl -X POST .../formResponse` with those four fields and no cookies returned HTTP 200, with the page text "Your response has been recorded." This is evidence against assumption 1 for non-browser requests. The Sheet row hasn't been confirmed by the user yet.
+- Spike step 2: headless Chromium (Playwright 1.63.0, new context with 0 Google cookies) submitted the locally served `/contact/` with the real config, twice ("spike 2" and "spike 3"). The site showed its thank-you message. Playwright's `response` event reported **HTTP 200** from `formResponse`, and `requestfailed` then reported `net::ERR_ABORTED`. A likely cause is Chromium discarding the opaque response body, but that is an inference. Evidence so far: Google accepts the cross-site, signed-out POST, and assumption 1 doesn't block this approach. The rows in the Sheet still need the user's confirmation.
+- Spike step 3, the notification email, waits on the user installing `apps-script/notify.gs`.
 
 ## Testing
 

@@ -30,6 +30,12 @@ docker compose run --rm unit
 
 The form on `/contact/` posts to a Google Form, which saves each response to a linked Google Sheet. Google sends no CORS headers for that endpoint, so the site can't tell whether a submission was saved. After any change to the Form or to `_config.yml`, send a real test message and check the Sheet.
 
+### Google Form setup
+
+1. Create a Google Form with four questions: **Name** (short answer), **Email** (short answer), **Subject** (short answer) and **Message** (paragraph). The notification script finds the Email and Subject answers by those exact titles, so renaming them breaks the reply-to address and the email subject.
+2. Open **Responses** and click **Link to Sheets** to save responses to a spreadsheet.
+3. Click **Publish** and give access to anyone with the link.
+
 `_config.yml` holds the Form's `formResponse` URL and the `entry.<id>` for each question. To find the IDs, open the Form and choose More → **Pre-fill form**, fill every field with recognizable text, then click **Get link**. Each `entry.<number>=<your text>` in that link is a question's ID. Editing or recreating a question can change its ID.
 
 ### Email notifications

@@ -1,4 +1,4 @@
-const { test, beforeEach } = require("node:test");
+const { describe, test, beforeEach } = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("path");
 
@@ -37,35 +37,45 @@ test("body lists every answer in form order and marks blanks", () => {
   );
 });
 
-let sentEmails;
-beforeEach(() => {
-  sentEmails = [];
-  global.MailApp = { sendEmail: (...args) => sentEmails.push(args) };
-  global.PropertiesService = {
-    getScriptProperties: () => ({ getProperty: (key) => (key === "NOTIFY_EMAIL" ? "owner@example.com" : null) }),
-  };
+test("checkbox answers are joined and empty ones marked blank", () => {
+  const notification = buildNotification([
+    { title: "Topics", response: ["Coaching", "Strategy"] },
+    { title: "Extras", response: [] },
+  ]);
+  assert.equal(notification.body, "Topics:\nCoaching, Strategy\n\nExtras:\n(blank)");
 });
 
-function formSubmitEvent(formAnswers) {
-  const itemResponses = formAnswers.map(({ title, response }) => ({
-    getItem: () => ({ getTitle: () => title }),
-    getResponse: () => response,
-  }));
-  return { response: { getItemResponses: () => itemResponses } };
-}
+describe("onFormSubmit", () => {
+  let sentEmails;
+  beforeEach(() => {
+    sentEmails = [];
+    global.MailApp = { sendEmail: (...args) => sentEmails.push(args) };
+    global.PropertiesService = {
+      getScriptProperties: () => ({ getProperty: (key) => (key === "NOTIFY_EMAIL" ? "owner@example.com" : null) }),
+    };
+  });
 
-test("onFormSubmit emails the owner with the visitor as reply-to", () => {
-  onFormSubmit(formSubmitEvent(answers));
-  assert.equal(sentEmails.length, 1);
-  const [recipient, subject, body, options] = sentEmails[0];
-  assert.equal(recipient, "owner@example.com");
-  assert.equal(subject, "Website contact: Coaching for my team");
-  assert.match(body, /^Name:\nAda Lovelace/);
-  assert.deepEqual(options, { replyTo: "ada@example.com" });
-});
+  function formSubmitEvent(formAnswers) {
+    const itemResponses = formAnswers.map(({ title, response }) => ({
+      getItem: () => ({ getTitle: () => title }),
+      getResponse: () => response,
+    }));
+    return { response: { getItemResponses: () => itemResponses } };
+  }
 
-test("onFormSubmit fails loudly when NOTIFY_EMAIL is not set", () => {
-  global.PropertiesService = { getScriptProperties: () => ({ getProperty: () => null }) };
-  assert.throws(() => onFormSubmit(formSubmitEvent(answers)), /NOTIFY_EMAIL/);
-  assert.equal(sentEmails.length, 0);
+  test("onFormSubmit emails the owner with the visitor as reply-to", () => {
+    onFormSubmit(formSubmitEvent(answers));
+    assert.equal(sentEmails.length, 1);
+    const [recipient, subject, body, options] = sentEmails[0];
+    assert.equal(recipient, "owner@example.com");
+    assert.equal(subject, "Website contact: Coaching for my team");
+    assert.match(body, /^Name:\nAda Lovelace/);
+    assert.deepEqual(options, { replyTo: "ada@example.com" });
+  });
+
+  test("onFormSubmit fails loudly when NOTIFY_EMAIL is not set", () => {
+    global.PropertiesService = { getScriptProperties: () => ({ getProperty: () => null }) };
+    assert.throws(() => onFormSubmit(formSubmitEvent(answers)), /NOTIFY_EMAIL/);
+    assert.equal(sentEmails.length, 0);
+  });
 });

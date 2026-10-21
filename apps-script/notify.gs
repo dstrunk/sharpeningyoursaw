@@ -1,16 +1,21 @@
 // Emails each Google Form response to the address in the NOTIFY_EMAIL Script Property.
-// Setup steps are in README.md under "Google Form setup".
+// Setup steps are in README.md under "Email notifications".
+
+// getResponse() returns a String for text questions and a String[] for checkbox questions.
+function formatResponse(response) {
+  return Array.isArray(response) ? response.join(", ") : String(response || "");
+}
 
 function findAnswer(answers, title) {
   const answer = answers.find((candidate) => candidate.title.toLowerCase() === title.toLowerCase());
-  return answer && answer.response ? String(answer.response) : "";
+  return answer ? formatResponse(answer.response) : "";
 }
 
 function buildNotification(answers) {
   const subject = findAnswer(answers, "Subject") || "(no subject)";
   const replyTo = findAnswer(answers, "Email") || undefined;
   const body = answers
-    .map(({ title, response }) => `${title}:\n${response ? String(response) : "(blank)"}`)
+    .map(({ title, response }) => `${title}:\n${formatResponse(response) || "(blank)"}`)
     .join("\n\n");
   return { subject: `Website contact: ${subject}`, body, replyTo };
 }
