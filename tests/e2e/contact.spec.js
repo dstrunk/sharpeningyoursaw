@@ -30,13 +30,15 @@ test("names each field after its Google Form question", async ({ page }) => {
   const email = page.getByLabel("Email");
   const subject = page.getByLabel("Subject");
   const message = page.getByLabel("Message");
-  const subscribe = page.getByLabel("Subscribe to the mailing list");
+
+  for (const label of ["Name", "Email", "Subject", "Message"]) {
+    await expect(page.locator("form.contact-form label", { hasText: new RegExp(`^${label}$`) })).toBeVisible();
+  }
 
   await expect(name).toHaveAttribute("name", googleForm.entries.name);
   await expect(email).toHaveAttribute("name", googleForm.entries.email);
   await expect(subject).toHaveAttribute("name", googleForm.entries.subject);
   await expect(message).toHaveAttribute("name", googleForm.entries.message);
-  await expect(subscribe).toHaveAttribute("name", googleForm.entries.subscribe);
 
   await expect(name).toHaveAttribute("required", "");
   await expect(email).toHaveAttribute("required", "");
@@ -44,31 +46,31 @@ test("names each field after its Google Form question", async ({ page }) => {
   await expect(subject).not.toHaveAttribute("required");
   await expect(message).toHaveAttribute("required", "");
   await expect(message).toHaveJSProperty("tagName", "TEXTAREA");
-  await expect(subscribe).toHaveAttribute("type", "checkbox");
-  await expect(subscribe).toHaveAttribute("value", "TRUE");
 });
 
-test("hides the honeypot from people and keeps it out of the Google Form", async ({ page }) => {
-  const honeypot = page.locator('input[name="website"]');
+test("hides the honeypot from people and never submits it", async ({ page }) => {
+  const honeypot = page.locator("#contact-leave-blank");
   await expect(honeypot).toHaveAttribute("tabindex", "-1");
   await expect(honeypot).toHaveAttribute("autocomplete", "off");
+  await expect(honeypot).not.toHaveAttribute("name");
   await expect(page.locator(".honeypot")).toHaveAttribute("aria-hidden", "true");
 
   const box = await honeypot.boundingBox();
+  expect(box).not.toBeNull();
   expect(box.x + box.width).toBeLessThanOrEqual(0);
 
-  const postedNames = await page.locator("form.contact-form [name]").evaluateAll(
+  const submittedNames = await page.locator("form.contact-form [name]").evaluateAll(
     (controls) => controls.map((control) => control.name)
   );
-  expect(postedNames.filter((name) => name !== "website").every((name) => name.startsWith("entry."))).toBe(true);
+  expect(submittedNames).toEqual(Object.values(googleForm.entries));
 });
 
 test("tabs through the fields in order without stopping on the honeypot", async ({ page }) => {
   await page.getByLabel("Name").focus();
   const focusOrder = [];
-  for (let step = 0; step < 5; step++) {
+  for (let step = 0; step < 4; step++) {
     await page.keyboard.press("Tab");
     focusOrder.push(await page.evaluate(() => document.activeElement.id || document.activeElement.textContent.trim()));
   }
-  expect(focusOrder).toEqual(["contact-email", "contact-subject", "contact-message", "contact-subscribe", "Send message"]);
+  expect(focusOrder).toEqual(["contact-email", "contact-subject", "contact-message", "Send message"]);
 });

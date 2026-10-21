@@ -7,7 +7,7 @@
   --color-fine-grit: #a9b8c3;
   --color-rule: #cdd4d9;
   --color-input-fill: #f8fafb;
-  --color-input-border: #b7c2ca;
+  --color-input-border: #78868f;
   --font-display: "Newsreader", Georgia, serif;
   --font-text: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --gutter: 56px;
@@ -168,9 +168,6 @@ body {
   padding: 11px 12px;
 }
 .field textarea { resize: vertical; }
-
-.field-check { display: flex; gap: 10px; align-items: center; }
-.field-check input { width: 18px; height: 18px; margin: 0; }
 
 /* Off-screen rather than display:none, so form-filling bots still see it. */
 .honeypot { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }

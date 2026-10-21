@@ -102,11 +102,11 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
    - The `<title>` is "Contact · Sharpening Your Saw", and Contact has `aria-current="page"`.
    - The heading "Contact" and the line "Send a message and we'll get back to you." are present.
    - The form has `method=post` and `action` equals `site.google_form.action`.
-   - Name, Email, Subject, Message and Subscribe each have a visible `<label>`, and their `name`s equal the configured `entry.*` values.
-   - Name, Email and Message are `required`; Email is `type=email`; Subscribe is a checkbox with value `TRUE`.
+   - Name, Email, Subject and Message each have a visible `<label>`, and their `name`s equal the configured `entry.*` values.
+   - Name, Email and Message are `required`; Email is `type=email`.
    - The honeypot input exists, has no `entry.` name, has `tabindex=-1` and `autocomplete=off`, isn't visible (`toBeHidden` or a zero-size bounding box), and is `aria-hidden`.
 2. **Green:**
-   - Add to `_config.yml` a `google_form:` block with `action` and `entries.{name,email,subject,message,subscribe}`. Until Task 8 these are clearly fake values: `https://docs.google.com/forms/d/e/REPLACE_ME/formResponse` and `entry.1000000001`–`entry.1000000005`, with a comment pointing at Task 8.
+   - Add to `_config.yml` a `google_form:` block with `action` and `entries.{name,email,subject,message}`. Until Task 8 these are clearly fake values: `https://docs.google.com/forms/d/e/REPLACE_ME/formResponse` and `entry.1000000001`–`entry.1000000004`, with a comment pointing at Task 8.
    - Write `contact.html`, and port the mockup's form styles into `site.css`.
 3. **Commit:** `feat: add contact page and form markup`.
 
@@ -115,7 +115,7 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 2. Check:
    - The "Contact" heading and line are on the left, and the form is on the right.
    - The labels are small uppercase, and the CONTACT nav link is underlined.
-   - Tabbing from Name goes Email → Subject → Message → Subscribe → Send, and never lands on a hidden field.
+   - Tabbing from Name goes Email → Subject → Message → Send, and never lands on a hidden field.
 3. Don't submit yet; the action is a placeholder.
 
 ## Task 4: Phone layout for both pages
@@ -144,8 +144,7 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 
 1. **Red:** `tests/e2e/contact-form.spec.js` intercepts `**/formResponse` with `page.route` and records the request body. Before any assertion depends on it, confirm in this step that the route handler is actually hit for a `mode: "no-cors"` fetch, and record that result. Cases:
    - **Validation:** submitting empty sends no request, and the browser's validity state flags Name, Email and Message.
-   - **Body, subscribed:** with all fields filled and Subscribe checked, one POST with `application/x-www-form-urlencoded` contains the five configured `entry.*` keys with the typed values and the Subscribe entry `TRUE`, and contains no honeypot key.
-   - **Body, unsubscribed:** the same with Subscribe unchecked sends the Subscribe entry `FALSE`.
+   - **Body:** with all fields filled, one POST with `application/x-www-form-urlencoded` contains exactly the four configured `entry.*` keys with the typed values.
    - **Sending:** while the route is held open, the button is disabled and reads "Sending…".
    - **Success:** the route fulfills with 200, the form is replaced by "Thanks. Your message is on its way.", and that element has focus.
    - **Error:** the route aborts (`route.abort("failed")`), the error message shows, the fields keep their values, and the button is enabled again.
@@ -167,7 +166,7 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 1. **Red:** `tests/unit/notify.test.js` (`node:test`) loads `notify.gs` through `require` and tests `buildNotification(answers)`, where `answers` is a list of `{ title, response }` pairs:
    - The subject is `Website contact: <Subject>`, or `Website contact: (no subject)` when Subject is blank.
    - `replyTo` is the Email answer.
-   - The body lists every title and answer in Form order, including `Subscribe: TRUE` or `Subscribe: FALSE`. A blank Subscribe (from the no-JS path) shows as `Subscribe: (blank)`.
+   - The body lists every title and answer in Form order. A blank answer shows as `(blank)`.
    - A missing Email answer leaves `replyTo` undefined, so `sendEmail` falls back to its default.
 2. **Green:** write `notify.gs` with:
    - `buildNotification`, which is pure.
@@ -185,12 +184,14 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 
 ## Task 7: Google Form spike (user and Claude, decision gate)
 
+> 2026-10-20: the user dropped the Subscribe question and shared the Form link. The four `entry.<id>` values and the `curl` result (step 3) are recorded in the spec under Unverified assumptions.
+
 **Goal:** confirm the spec's three unverified assumptions against the real Form before relying on them.
 
 1. The user follows the README setup and sends Claude the **pre-filled link** (More → Pre-fill form → fill every field with recognizable text → Get link) and the Form's public link.
 2. Claude reads the `entry.<id>` parameters from the pre-filled link and reports the link with each ID mapped to its question. If the link doesn't contain `entry.<id>` parameters, stop and report what it does contain.
-3. **`curl` test:** POST URL-encoded `entry.*` fields (Subscribe `TRUE`, Subject "spike 1") to `.../formResponse`, with no Google cookies. Record the HTTP status and the first lines of the response. The user confirms whether a row appeared in the Sheet and whether the email arrived.
-4. **Browser test:** serve the site locally with the real `action` and IDs in a scratch `_config.yml` override, not committed. Submit from a browser profile that isn't signed in to Google, with Subject "spike 2" and Subscribe unchecked. The user confirms the row (Subscribe `FALSE`) and the email.
+3. **`curl` test:** POST URL-encoded `entry.*` fields (Subject "spike 1") to `.../formResponse`, with no Google cookies. Record the HTTP status and the first lines of the response. The user confirms whether a row appeared in the Sheet and whether the email arrived.
+4. **Browser test:** serve the site locally with the real `action` and IDs in a scratch `_config.yml` override, not committed. Submit from a browser profile that isn't signed in to Google, with Subject "spike 2". The user confirms the row and the email.
 5. **Decision gate:** if either submission is rejected (for example a sign-in redirect) or doesn't reach the Sheet, stop. Report the evidence and ask the user whether to switch to the Apps Script web app design. Don't continue to Task 8 without their answer.
 6. Delete the spike rows from the Sheet (the user does this). Nothing is committed in this task.
 
@@ -202,8 +203,8 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 
 **Smoke test (user):**
 1. Open http://localhost:4000/contact/ in a browser that isn't signed in to Google.
-2. Send a message with Subject "local check" and Subscribe checked.
-3. Confirm a new Sheet row with Subscribe `TRUE`, and an email whose reply-to is the address you typed.
+2. Send a message with Subject "local check".
+3. Confirm a new Sheet row and an email whose reply-to is the address you typed.
 4. Delete the row.
 
 ## Task 9: Create the public repo and publish on GitHub Pages
@@ -259,12 +260,12 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 | Shared header/footer, active link, `site.time` year, titles, meta description | 2, 3 |
 | 640px phone layout | 4 |
 | Native POST fallback to `formResponse` | 3, 5 |
-| JS validation, honeypot, `no-cors` POST, Subscribe `TRUE`/`FALSE` | 5 |
+| JS validation, honeypot, `no-cors` POST | 5 |
 | Sending / success / error states | 5 |
 | Honeypot not sent to Google | 3, 5 |
 | Notification script, Script Property, `replyTo`, subject fallback | 6 |
 | Google Form + Sheet + trigger setup instructions | 6 |
-| Unverified assumptions 1–3 (sign-in, `formResponse` POST, Subscribe column) | 7 |
+| Unverified assumptions 1–2 (sign-in, `formResponse` POST) | 7 |
 | Live submission check (and re-check after Form changes, documented in README) | 7, 8, 9, 10 |
 | New public repo, Pages from `main`, `github-pages` 232 | 1, 9 |
 | Docker-only tooling | 1 |
@@ -280,7 +281,7 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 - [ ] The footer shows the current year
 - [ ] At phone width: no sideways scroll, services 2×2, the form in one column
 - [ ] An empty submit flags the required fields
-- [ ] A real submission shows the thank-you message, a Sheet row with the right columns and Subscribe `TRUE`/`FALSE`, and an email you can reply to that reaches the sender
+- [ ] A real submission shows the thank-you message, a Sheet row with the right columns, and an email you can reply to that reaches the sender
 - [ ] With JavaScript off (optional), the form still posts and lands on Google's confirmation page
 - [ ] The repo is public and contains no notification email address or other secrets
 - [ ] The README explains how to run the site locally, run the tests, edit the copy, and redo the Google Form IDs

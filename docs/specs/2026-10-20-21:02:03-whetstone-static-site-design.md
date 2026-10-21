@@ -15,7 +15,7 @@ approved **A · Whetstone** direction
 | Local development | `docker compose` runs Jekyll (`ruby:3.3` image + `github-pages` gem) and the test runners. Nothing is installed on the host | Project preference for Docker |
 | Contact form storage | The site's form posts to a **Google Form's `formResponse` endpoint**, using the Form's `entry.<id>` field names. The Form saves responses to a linked Google Sheet | The user's previous setup; chosen by the user over an Apps Script web app |
 | Notification email | An Apps Script bound to the Google Form, run by an installable **form submit** trigger, emails each response's contents | Google's built-in "Get email notifications for new responses" is documented, but the help page doesn't say whether the email includes the answers (see Sources) |
-| Mailing list | The checkbox stays and arrives in the Sheet as `TRUE` or `FALSE`. It is not connected to Mailchimp | The user will connect it later |
+| Mailing list | Dropped: no checkbox, and no Subscribe question in the Form | The user decided on 2026-10-20 that it won't be needed |
 | Spam protection | A hidden honeypot field, checked in the browser. When it's filled, the site shows success and sends nothing | The WordPress site used a Contact Form 7 honeypot plugin. Limitation: the honeypot only stops bots that run the page's JavaScript, because the `formResponse` URL is public and can be posted to directly |
 
 ## Pages
@@ -42,12 +42,10 @@ Content is the existing copy, arranged as in the mockup:
   | Email | `type="email"` | Short answer "Email" | yes |
   | Subject | text | Short answer "Subject" | no |
   | Message | textarea | Paragraph "Message" | yes |
-  | Subscribe to the mailing list | checkbox | Short answer "Subscribe" | no |
-  | (honeypot) | visually hidden text, `tabindex="-1"`, `autocomplete="off"`, no `entry.` name | none | n/a |
+  | (honeypot) | off-screen text input labelled "Leave this field blank", `tabindex="-1"`, `autocomplete="off"`, no `name`, so it is never submitted | none | n/a |
 
   Each input's `name` is the matching question's `entry.<id>`. The IDs go in `_config.yml` once the Form exists.
 
-- "Subscribe" is a Short answer question so the site can send the literal text `TRUE` or `FALSE`. With multiple choice or checkbox questions, the submitted value must exactly match the option text shown in the Google Form (Atomic Object, see Sources), which adds a way to fail silently.
 - The `/contact/` path matches the WordPress default permalink for a page named "Contact". The old site's actual permalink setting has not been checked: it lives in the WordPress database, which is not in the repo.
 
 ### Shared layout
@@ -68,7 +66,7 @@ Content is the existing copy, arranged as in the mockup:
 | Accent (steel) | `#2e5470` |
 | Fine grit | `#a9b8c3` |
 | Rules | `#cdd4d9` |
-| Input fill / border | `#f8fafb` / `#b7c2ca` |
+| Input fill / border | `#f8fafb` / `#78868f`. The mockup's `#b7c2ca` border was 1.57:1 on the background, below the 3:1 WCAG asks for field edges |
 | Display face | Newsreader (Google Fonts), italic for the wordmark and accent word |
 | Text face | Public Sans (Google Fonts) |
 
@@ -76,12 +74,11 @@ The site is single-theme, as the mockup is. It has no dark mode.
 
 ## Contact form behavior
 
-1. The `<form>` has `method="post"` and `action="{{ site.google_form.action }}"`, where the action is `https://docs.google.com/forms/d/e/<FORM_ID>/formResponse`. Without JavaScript, a browser form post is a page navigation, so CORS doesn't apply and the visitor lands on Google's own confirmation page. On that path, an unchecked Subscribe box sends nothing, so the Sheet cell is blank.
+1. The `<form>` has `method="post"` and `action="{{ site.google_form.action }}"`, where the action is `https://docs.google.com/forms/d/e/<FORM_ID>/formResponse`. Without JavaScript, a browser form post is a page navigation, so CORS doesn't apply and the visitor lands on Google's own confirmation page.
 2. With JavaScript, `assets/contact.js`:
    1. Intercepts the submit and runs the browser's built-in validation (`required`, `type="email"`).
    2. If the honeypot is filled, shows success and stops.
-   3. Sets Subscribe to `TRUE` or `FALSE`.
-   4. POSTs the `entry.*` fields as `application/x-www-form-urlencoded` with `fetch(action, { method: "POST", mode: "no-cors", body })`.
+   3. POSTs the `entry.*` fields as `application/x-www-form-urlencoded` with `fetch(action, { method: "POST", mode: "no-cors", body })`.
 3. **The site cannot confirm that a submission was saved.** Two community write-ups (below) report that Google does not send CORS headers for `formResponse`, so a `no-cors` request returns an opaque response: "You cannot tell success from failure." Success therefore means the request completed without a network error. A rejected `fetch` (offline, DNS failure) shows the error state.
 4. States:
    - **Sending:** the button is disabled and reads "Sending…".
@@ -92,7 +89,7 @@ The site is single-theme, as the mockup is. It has no dark mode.
 ## Google Form, Sheet and notification script
 
 **Form and Sheet setup** (user, in Google Forms):
-- Create the five questions above with matching required settings.
+- Create the four questions above. The user created the Form on 2026-10-20 (short link `https://forms.gle/CCV4etjSHXKTjAcc9`).
 - Link the Sheet via Responses → **Link to Sheets** (Google Forms Help, *View & manage form responses*).
 - Publish the Form so anyone can respond. See the sign-in risk under Unverified assumptions.
 - Get the `entry.<id>` values with More → **Pre-fill form** → **Get link** (Google Forms Help, *Publish & share your form*). Google's page documents these steps but not the link's URL format. The community write-ups below describe the `entry.<id>` parameters, which the spike confirms.
@@ -112,12 +109,15 @@ The site is single-theme, as the mockup is. It has no dark mode.
 
 1. **Anonymous responses.** Google's *Publish & share your form* help page, as fetched on 2026-10-20, says: "To access and fill out the form, users must sign in to their Google Account." It isn't clear from the fetched text whether that applies to every published form or only to restricted ones. If a `formResponse` POST from a signed-out browser is rejected, this approach fails. The fallback would be the Apps Script web app design, for the user to decide.
 2. **`formResponse` accepts a POST from another site** with `entry.<id>` fields, and the response is opaque. This comes only from community sources, not Google documentation.
-3. **The Subscribe Short answer column** shows `TRUE`/`FALSE` as sent.
 
 **Spike:**
 1. With the real Form, POST a test submission with `curl` (no CORS involved) and check that a Sheet row appears.
 2. POST again with `fetch(..., { mode: "no-cors" })` from the locally served site in a signed-out browser, and check again.
 3. Check that the notification email arrives.
+
+**Results so far (2026-10-20):**
+- The Form's public page, fetched with `curl` without Google cookies, returned 200. Its `FB_PUBLIC_LOAD_DATA_` script lists four questions: Name `entry.1795760626`, Email `entry.650575490`, Subject `entry.1974149135`, Message `entry.1522122871`. Reading IDs this way relies on an undocumented page structure. The pre-filled link is the documented route.
+- Spike step 1: `curl -X POST .../formResponse` with those four fields and no cookies returned HTTP 200, with the page text "Your response has been recorded." This is evidence against assumption 1 for non-browser requests. The Sheet row hasn't been confirmed by the user yet.
 
 ## Testing
 
@@ -126,11 +126,11 @@ The site is single-theme, as the mockup is. It has no dark mode.
   - the phone layout at 390px
   - form validation
   - the honeypot short-circuit
-  - the request body: `entry.*` names, Subscribe `TRUE`/`FALSE`, no honeypot field
+  - the request body: `entry.*` names, no honeypot field
   - the sending, success and network-error states
 
   Requests to `docs.google.com` are intercepted with `page.route`, so tests never post to the real Form.
-- **Unit:** `node --test` covers `buildNotification`: subject fallback, reply-to, body layout, and the `TRUE`/`FALSE` Subscribe answer.
+- **Unit:** `node --test` covers `buildNotification`: subject fallback, reply-to and body layout.
 - **Manual / live:**
   - a browser smoke test at the end of each UI task
   - the backend spike above
