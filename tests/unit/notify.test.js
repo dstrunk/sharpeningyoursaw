@@ -37,14 +37,6 @@ test("body lists every answer in form order and marks blanks", () => {
   );
 });
 
-test("checkbox answers are joined and empty ones marked blank", () => {
-  const notification = buildNotification([
-    { title: "Topics", response: ["Coaching", "Strategy"] },
-    { title: "Extras", response: [] },
-  ]);
-  assert.equal(notification.body, "Topics:\nCoaching, Strategy\n\nExtras:\n(blank)");
-});
-
 describe("onFormSubmit", () => {
   let sentEmails;
   beforeEach(() => {

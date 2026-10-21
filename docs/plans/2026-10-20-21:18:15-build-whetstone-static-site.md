@@ -219,6 +219,14 @@ Mockup: https://claude.ai/artifact/NbV9NzVEe6rBK3d4MPBnTA (option A)
 4. Wait for the build. Check it with `gh api repos/dstrunk/sharpeningyoursaw-site/pages/builds/latest` and record the status.
 5. **Commit (before the push):** `chore: set github pages project baseurl`.
 
+> Recorded 2026-10-20:
+> - Ran `gh repo create dstrunk/sharpeningyoursaw-site --public --source . --remote origin --push`.
+> - Ran `gh api -X POST repos/dstrunk/sharpeningyoursaw-site/pages -f build_type=legacy -f 'source[branch]=main' -f 'source[path]=/'`, following *Create a GitHub Pages site* in the REST docs. It returned `html_url` https://dstrunk.github.io/sharpeningyoursaw-site/.
+> - `pages/builds/latest`: `status: built`, commit `0b63357`, 33s.
+> - `curl`: `/`, `/contact/` and `/assets/site.css` returned 200. `README.html` and `assets/css/style.css` (the default theme's stylesheet) returned 404.
+> - The browser check showed both stylesheets and the Newsreader and Public Sans fonts loaded.
+> - A signed-out headless submission from the live page got HTTP 200 from `formResponse`.
+
 **Smoke test (user):**
 1. Open https://dstrunk.github.io/sharpeningyoursaw-site/.
 2. Check that the fonts and styles load on both pages and that the nav links stay under `/sharpeningyoursaw-site/`.

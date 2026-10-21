@@ -31,8 +31,8 @@ test("names each field after its Google Form question", async ({ page }) => {
   const subject = page.getByLabel("Subject");
   const message = page.getByLabel("Message");
 
-  for (const label of ["Name", "Email", "Subject", "Message"]) {
-    await expect(page.locator("form.contact-form label", { hasText: new RegExp(`^${label}$`) })).toBeVisible();
+  for (const label of ["Name", "Email", "Subject (optional)", "Message"]) {
+    await expect(page.locator("form.contact-form label", { hasText: new RegExp(`^${label.replace(/[()]/g, "\\$&")}$`) })).toBeVisible();
   }
 
   await expect(name).toHaveAttribute("name", googleForm.entries.name);

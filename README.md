@@ -1,6 +1,8 @@
 # Sharpening Your Saw
 
-Static site for sharpeningyoursaw, built with Jekyll and published by GitHub Pages from `main`.
+Static site for Sharpening Your Saw, built with Jekyll. GitHub Pages builds and publishes it whenever `main` is pushed: https://dstrunk.github.io/sharpeningyoursaw-site/ until the custom domain is set.
+
+`_config.yml` sets `baseurl: "/sharpeningyoursaw-site"` for that `github.io` address. Once a custom domain is in place, set it back to `""`. Local serving always uses `--baseurl ''`, so local URLs and the tests stay at `/` either way.
 
 ## Run locally
 
@@ -20,10 +22,17 @@ docker compose run --rm e2e
 docker compose run --rm unit
 ```
 
+The e2e run leaves the Jekyll container running. Stop it with:
+
+```bash
+docker compose down
+```
+
 ## Edit the copy
 
 - Home: `index.md`. The headline, eyebrow, services and link text are in the front matter; the lead sentence is the Markdown body.
 - Contact: `contact.html`.
+- Site title and the default meta description: `_config.yml`.
 - Colors and type: the custom properties at the top of `assets/site.css`.
 
 ## Contact form
@@ -36,7 +45,7 @@ The form on `/contact/` posts to a Google Form, which saves each response to a l
 2. Open **Responses** and click **Link to Sheets** to save responses to a spreadsheet.
 3. Click **Publish** and give access to anyone with the link.
 
-`_config.yml` holds the Form's `formResponse` URL and the `entry.<id>` for each question. To find the IDs, open the Form and choose More → **Pre-fill form**, fill every field with recognizable text, then click **Get link**. Each `entry.<number>=<your text>` in that link is a question's ID. Editing or recreating a question can change its ID.
+`_config.yml` holds the Form's `formResponse` URL and the `entry.<id>` for each question. For the URL, copy the Form's responder link (the one ending in `/viewform`) and replace `viewform` with `formResponse`. To find the IDs, open the Form and choose More → **Pre-fill form**, fill every field with recognizable text, then click **Get link**. Each `entry.<number>=<your text>` in that link is a question's ID. Editing or recreating a question can change its ID.
 
 ### Email notifications
 

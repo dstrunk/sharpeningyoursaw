@@ -66,6 +66,7 @@ Content is the existing copy, arranged as in the mockup:
 | Accent (steel) | `#2e5470` |
 | Fine grit | `#a9b8c3` |
 | Rules | `#cdd4d9` |
+| Error text | `#9b2c22` (6.55:1 on the background) |
 | Input fill / border | `#f8fafb` / `#78868f`. The mockup's `#b7c2ca` border was 1.57:1 on the background, below the 3:1 WCAG asks for field edges |
 | Display face | Newsreader (Google Fonts), italic for the wordmark and accent word |
 | Text face | Public Sans (Google Fonts) |
@@ -120,6 +121,7 @@ The site is single-theme, as the mockup is. It has no dark mode.
 - Spike step 1: `curl -X POST .../formResponse` with those four fields and no cookies returned HTTP 200, with the page text "Your response has been recorded." This is evidence against assumption 1 for non-browser requests. The Sheet row hasn't been confirmed by the user yet.
 - Spike step 2: headless Chromium (Playwright 1.63.0, new context with 0 Google cookies) submitted the locally served `/contact/` with the real config, twice ("spike 2" and "spike 3"). The site showed its thank-you message. Playwright's `response` event reported **HTTP 200** from `formResponse`, and `requestfailed` then reported `net::ERR_ABORTED`. A likely cause is Chromium discarding the opaque response body, but that is an inference. Evidence so far: Google accepts the cross-site, signed-out POST, and assumption 1 doesn't block this approach. The rows in the Sheet still need the user's confirmation.
 - Spike step 3, the notification email, waits on the user installing `apps-script/notify.gs`.
+- **Decision gate:** passed on the HTTP 200 evidence above, so Tasks 8 and 9 went ahead. One more signed-out submission, from the live `github.io` page ("pages check"), also got HTTP 200. Still outstanding, for the user's end-of-project review: confirming the four test rows ("spike 1", "spike 2", "spike 3", "pages check") in the Sheet, then deleting them, and installing the notification script and checking its email.
 
 ## Testing
 
