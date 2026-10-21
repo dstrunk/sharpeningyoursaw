@@ -4,7 +4,8 @@ baseurl: ""
 theme: null
 
 exclude:
-  - docs
+  - AGENTS.md
+  - CLAUDE.md
   - tests
   - apps-script
   - node_modules
