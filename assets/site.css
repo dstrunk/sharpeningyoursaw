@@ -190,3 +190,15 @@ body {
   padding: 14px 26px;
 }
 .submit-button:disabled { opacity: .6; cursor: progress; }
+
+@media (max-width: 640px) {
+  :root { --gutter: 20px; }
+  .site-header nav { gap: 18px; }
+  .site-main { padding-block: 48px 56px; }
+  .display-title { font-size: 44px; }
+  .display-title--small { font-size: 38px; }
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+  .services li { padding-bottom: 14px; font-size: 19px; }
+  .contact { grid-template-columns: 1fr; gap: 28px; }
+  .field-row { grid-template-columns: 1fr; }
+}
